@@ -371,7 +371,7 @@ if ( !class_exists( 'WPDeveloperAssistant' ) ) {
 				$serialized = false;
 				$class = '';
 
-				$option->option_name = $this->esc_attr( $option->option_name );
+				$option->option_name = esc_attr( $option->option_name );
 				if ( is_serialized( $option->option_value ) ) {
 					$serialized = true;
 					$value = $option->option_value;
@@ -392,9 +392,9 @@ if ( !class_exists( 'WPDeveloperAssistant' ) ) {
 								<i><?php $this->addShowHideLink( $option->option_name, 'Serialized Data', true ); ?></i><br />
 								<textarea style="display:none;" class="<?php echo $class; ?>" name="<?php echo $option->option_name; ?>" id="<?php echo $option->option_name; ?>" cols="60" rows="10"><?php echo $value ?></textarea>
 							<?php elseif ( strpos( $value, "\n" ) !== false ) : ?>
-								<textarea class="<?php echo $class; ?>" name="<?php echo $option->option_name; ?>" id="<?php echo $option->option_name; ?>" cols="60" rows="10"><?php echo $this->esc_html( $value ); ?></textarea>
+								<textarea class="<?php echo $class; ?>" name="<?php echo $option->option_name; ?>" id="<?php echo $option->option_name; ?>" cols="60" rows="10"><?php echo esc_html( $value ); ?></textarea>
 							<?php else : ?>
-								<input class="<?php echo $class; ?>" type="text" name="<?php echo $option->option_name; ?>" id="<?php echo $option->option_name; ?>" size="30" value="<?php echo $this->esc_attr( $value ); ?>" />
+								<input class="<?php echo $class; ?>" type="text" name="<?php echo $option->option_name; ?>" id="<?php echo $option->option_name; ?>" size="30" value="<?php echo esc_attr($value); ?>" />
 							<?php endif; ?>
 						</td>
 					</tr>
@@ -443,7 +443,7 @@ if ( !class_exists( 'WPDeveloperAssistant' ) ) {
 						
 						foreach ( (array) $doActions[$action] as $match ) {
 							foreach ( (array) $match['matches'] as $key => $val ) {
-								$match['matches'][$key] = $this->esc_html( $val );
+								$match['matches'][$key] = esc_html( $val );
 								$match['matches'][$key] = preg_replace( "/\n/", "<br />\n", $val );
 							}
 							
@@ -464,7 +464,7 @@ if ( !class_exists( 'WPDeveloperAssistant' ) ) {
 						
 						foreach ( (array) $addActions[$action] as $match ) {
 							foreach ( (array) $match['matches'] as $key => $val ) {
-								$match['matches'][$key] = $this->esc_html( $val );
+								$match['matches'][$key] = esc_html( $val );
 								$match['matches'][$key] = preg_replace( "/\n/", "<br />\n", $val );
 							}
 							
@@ -506,7 +506,7 @@ if ( !class_exists( 'WPDeveloperAssistant' ) ) {
 						
 						foreach ( (array) $applyFilters[$filter] as $match ) {
 							foreach ( (array) $match['matches'] as $key => $val ) {
-								$match['matches'][$key] = $this->esc_html( $val );
+								$match['matches'][$key] = esc_html( $val );
 								$match['matches'][$key] = preg_replace( "/\n/", "<br />\n", $val );
 							}
 							
@@ -533,7 +533,7 @@ if ( !class_exists( 'WPDeveloperAssistant' ) ) {
 						
 						foreach ( (array) $addFilters[$filter] as $match ) {
 							foreach ( (array) $match['matches'] as $key => $val ) {
-								$match['matches'][$key] = $this->esc_html( $val );
+								$match['matches'][$key] = esc_html( $val );
 								$match['matches'][$key] = preg_replace( "/\n/", "<br />\n", $val );
 							}
 							
@@ -626,12 +626,11 @@ if ( !class_exists( 'WPDeveloperAssistant' ) ) {
 						$num = mysql_num_rows( $result );
 						$row = ( $num == 1 ) ? 'row' : 'rows';
 						echo "<p>$num $row returned.</p>\n";
-
-						$retval = '';
+						
 						while ( $row = mysql_fetch_assoc( $result ) ) {
 							if ( ! isset( $retval ) ) {
 								foreach ( (array) array_keys( $row ) as $val ) {
-									$val = $this->esc_html( $val );
+									$val = esc_html( $val );
 									
 									$retval .= "<th>$val</th>";
 								}
@@ -642,7 +641,7 @@ if ( !class_exists( 'WPDeveloperAssistant' ) ) {
 							$retval .= "<tr>";
 							
 							foreach ( (array) array_values( $row ) as $val ) {
-								$val = $this->esc_html( $val );
+								$val = esc_html( $val );
 								$val = preg_replace( "/\n/", "<br />\n", $val );
 								
 								$retval .= "<td>$val</td>";
@@ -676,7 +675,13 @@ if ( !class_exists( 'WPDeveloperAssistant' ) ) {
 		
 		function phpInfoPage() {
 			if ( function_exists( 'phpinfo' ) ) {
-				phpinfo() ;
+
+				ob_start () ;
+				phpinfo () ;
+				$pinfo = ob_get_contents () ;
+				ob_end_clean () ;
+				preg_replace ( '#<style.*</style>#m', '', $pinfo );
+				echo $pinfo;
 			}
 			else {
 				echo "Function phpinfo() unavailable.";
@@ -746,7 +751,7 @@ if ( !class_exists( 'WPDeveloperAssistant' ) ) {
 						$first = true;
 						
 						foreach ( (array) $matches as $match ) {
-							$match['matches'][3] = $this->esc_html( $match['matches'][3] );
+							$match['matches'][3] = esc_html( $match['matches'][3] );
 							if ( in_array( $define, (array) $hiddens ) )
 								$match['matches'][3] = '<i>hidden for security reasons</i>';
 							$match['matches'][3] = preg_replace( "/\n/", "<br />\n", $match['matches'][3] );
@@ -1133,7 +1138,9 @@ if ( !class_exists( 'WPDeveloperAssistant' ) ) {
 				
 				if ( isset( $data['showMemLeaks'] ) && ( $data['showMemLeaks'] == 1 ) )
 					ini_set( 'report_memleaks' , 'true' );
-
+				
+				
+				
 				$reportingVars['showError'] = E_ERROR;
 				$reportingVars['showWarning'] = E_WARNING;
 				$reportingVars['showParse'] = E_PARSE;
@@ -1148,12 +1155,10 @@ if ( !class_exists( 'WPDeveloperAssistant' ) ) {
 				$reportingVars['showStrict'] = E_STRICT;
 				$reportingVars['showRecoverableError'] = E_RECOVERABLE_ERROR;
 				
-				foreach ( (array) $reportingVars as $var => $val ) {
-					if ( ! empty( $data[$var] ) ) {
+				foreach ( (array) $reportingVars as $var => $val )
+					if ( ! empty( $data[$var] ) )
 						$reportingLevel |= $val;
-					}
-				}
-
+				
 				error_reporting( $reportingLevel );
 			}
 			else
@@ -1199,13 +1204,13 @@ if ( !class_exists( 'WPDeveloperAssistant' ) ) {
 		}
 		
 		function parseData( $name, $data, $depth = 1 ) {
-			$name = $this->esc_html( $name );
+			$name = esc_html( $name );
 			$retval = '';
 			
 			if ( is_array( $data ) ) {
 				foreach ( (array) $data as $key => $val ) {
 					if ( ( $name == '$GLOBALS' ) && ( $key == 'GLOBALS' ) ) {
-						$key = $this->esc_html( $key );
+						$key = esc_html( $key );
 						$retval .= "<tr><td>$key <i>(array)</i></td><td><i>Recursive Reference</i></td></tr>\n";
 					}
 					else
@@ -1221,7 +1226,7 @@ if ( !class_exists( 'WPDeveloperAssistant' ) ) {
 				return "<tr>\n<td style=\"vertical-align:top;\">$link</td>\n<td>\n<table style=\"display:none;\" id=\"variableOutputListing-array-" . $this->_parseDataCounter++ . "\">\n$retval</table>\n</td>\n</tr>\n";
 			}
 			else if ( is_object( $data ) ) {
-				$data = $this->esc_html( $data );
+				$data = esc_html( $data );
 				
 				return "<tr><td>$name&nbsp;<i>(object)</i></td><td>$data</td></tr>\n";
 			}
@@ -1231,7 +1236,7 @@ if ( !class_exists( 'WPDeveloperAssistant' ) ) {
 				return "<tr><td>$name&nbsp;<i>(boolean)</i></td><td>$data</td></tr>\n";
 			}
 			else if ( is_string( $data ) ) {
-				$data = $this->esc_html( $data );
+				$data = esc_html( $data );
 				
 				if ( '' === $data )
 					$data = '<i>empty<i>';
@@ -1239,7 +1244,7 @@ if ( !class_exists( 'WPDeveloperAssistant' ) ) {
 				return "<tr><td>$name&nbsp;<i>(string)</i></td><td>$data</td></tr>\n";
 			}
 			else {
-				$data = $this->esc_html( $data );
+				$data = esc_html( $data );
 				
 				if ( is_null( $data ) )
 					$data = "<i>empty<i>";
@@ -1762,22 +1767,6 @@ if ( !class_exists( 'WPDeveloperAssistant' ) ) {
 			
 			return array( 'extracted' => false, 'error' => false );
 		}
-
-		/**
-		 * @param string $sValue
-		 * @return string|void
-		 */
-		function esc_attr( $sValue ) {
-			return ( function_exists( 'esc_attr' ) ? esc_attr( $sValue ) : attribute_escape( $sValue ) );
-		}
-
-		/**
-		 * @param string $sValue
-		 * @return mixed|string
-		 */
-		function esc_html( $sValue ) {
-			return ( function_exists( 'esc_html' ) ? esc_html( $sValue ) : wp_specialchars( $sValue ) );
-		}
 	}
 }
 
@@ -1785,5 +1774,3 @@ if ( !class_exists( 'WPDeveloperAssistant' ) ) {
 if ( class_exists( 'WPDeveloperAssistant' ) ) {
 	$wpDeveloperAssistant = new WPDeveloperAssistant();
 }
-
-?>

@@ -1,7 +1,7 @@
 === WP Developer Assistant ===
 Contributors: chrisjean, paultgoodchild
 Tags: developer, development, debug
-Requires at least: 2.2
+Requires at least: 4.0
 Tested up to: 4.3
 Stable tag: 1.0.3
 
